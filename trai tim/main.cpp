@@ -17,17 +17,38 @@ void gotoXY(int x, int y) { // x la ngang, y la doc
     coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
-vector <string> input(char *s){
-	ifstream cin(s);
-	vector <string> kq;
-	string x;
-	while(1){
-		if(!getline(cin, x))
-			return kq;
-		kq.push_back(x);
-	} 
+vector<string> input(const char *path){
+	ifstream input_file(path);
+	vector<string> lines;
+	string line;
+	while(getline(input_file, line)){
+		lines.push_back(line);
+	}
+	return lines;
 }
-void MayTinh(int x, int y, vector<string> may_tinh){
+bool hasMinLength(const vector<string> &lines, int from, int to, size_t min_length){
+	if(from < 0 || to >= lines.size() || from > to)
+		return false;
+	for(int i = from; i <= to; i++){
+		if(lines[i].size() < min_length)
+			return false;
+	}
+	return true;
+}
+bool validateInputs(const vector<string> &may_tinh, const vector<string> &s1, const vector<string> &s2){
+	if(may_tinh.size() < 9)
+		return false;
+	if(!hasMinLength(may_tinh, 0, static_cast<int>(may_tinh.size()) - 1, 43))
+		return false;
+	if(may_tinh[8].size() < 46)
+		return false;
+	if(s1.size() < 21 || s2.size() < 21)
+		return false;
+	if(!hasMinLength(s1, 5, 20, 61) || !hasMinLength(s2, 5, 20, 61))
+		return false;
+	return true;
+}
+void MayTinh(int x, int y, const vector<string> &may_tinh){
 	for(int i=0; i<may_tinh.size(); i++){
 		string s;
 		if(i == 8){
@@ -70,7 +91,7 @@ void MayTinh(int x, int y, vector<string> may_tinh){
 		Sleep(Time*1.5);
 	}
 }
-void heart(int x, int y, vector<string> s0, vector<string> s1, vector<string> s2){
+void heart(int x, int y, const vector<string> &s0, const vector<string> &s1, const vector<string> &s2){
 	while(1){
 		TextColor(7);
 		gotoXY(x + 4 + 13, y + 30 + 3); cout << "v   v";
@@ -103,16 +124,16 @@ void heart(int x, int y, vector<string> s0, vector<string> s1, vector<string> s2
 			}
 			Sleep(Time);
 		}
-		gotoXY(x + 22, y + 4);	cout << "@@@@@@@@@@@";
-		gotoXY(x + 44, y + 4);	cout << "@@@@@@@@@@@";
+		gotoXY(x + 22, y + 4); cout << "@@@@@@@@@@@";
+		gotoXY(x + 44, y + 4); cout << "@@@@@@@@@@@";
 		Sleep(Time);
-		gotoXY(x + 31, y + 5);	cout << "@@@@@";
-		gotoXY(x + 41, y + 5);	cout << "@@@@@";
+		gotoXY(x + 31, y + 5); cout << "@@@@@";
+		gotoXY(x + 41, y + 5); cout << "@@@@@";
 		Sleep(Time);
-		gotoXY(x + 35, y + 6);	cout << "@@@";
-		gotoXY(x + 39, y + 6);	cout << "@@@";
+		gotoXY(x + 35, y + 6); cout << "@@@";
+		gotoXY(x + 39, y + 6); cout << "@@@";
 		Sleep(Time);
-		gotoXY(x + 38, y + 7);	cout << "@";
+		gotoXY(x + 38, y + 7); cout << "@";
 		Sleep(Time);
 		for(int i=0; i< 4; i++){
 			for(int ii=0; ii<3; ii++){
@@ -128,7 +149,7 @@ void heart(int x, int y, vector<string> s0, vector<string> s1, vector<string> s2
 				if(s2[14 - i][j] == '3'){
 					TextColor(12);
 					gotoXY(x + j, y + 14 - i);
-					cout << char (3);
+					cout << char(3);
 				}
 			}
 			Sleep(Time*2);
@@ -139,16 +160,19 @@ void heart(int x, int y, vector<string> s0, vector<string> s1, vector<string> s2
 }
 int main(){
 	system("cls");
-	getch(); 
 	int x = 20, y = 2;
-	char may_tinh_input[] = "./may tinh.txt";
-	char heart_0[] = "./heart0.txt";
-	char heart_1[] = "./heart1.txt";
-	char heart_2[] = "./heart2.txt";
+	const char *may_tinh_input = "./may tinh.txt";
+	const char *heart_0 = "./heart0.txt";
+	const char *heart_1 = "./heart1.txt";
+	const char *heart_2 = "./heart2.txt";
 	vector<string> may_tinh = input(may_tinh_input);
 	vector<string> s0 = input(heart_0);
 	vector<string> s1 = input(heart_1);
 	vector<string> s2 = input(heart_2);
+	if(!validateInputs(may_tinh, s1, s2)){
+		cerr << "Khong the doc du lieu hop le tu cac file txt." << endl;
+		return 1;
+	}
 	MayTinh(x + 5, y + 30, may_tinh);
 	heart(x, y, s0, s1, s2);
 	return 0;
